@@ -1,1 +1,11 @@
+# nigh/
+works to complete immediately.
 
+# near/
+works that should be completed.
+
+# dare/
+ventures into the unknown.
+
+# yore/
+charted territory.
