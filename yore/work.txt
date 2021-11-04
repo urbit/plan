@@ -1,0 +1,117 @@
+(Last updated 6/2021)
+
+Here's an outline of the significant areas of technical work that need
+to be done for Urbit to be done.  I'm excluding userspace apps, culture
+we need to impart, and anything aimed at getting users, money, or other
+temporal concerns.  I'm also not putting them in any particular order.
+
+If the future is a technical problem, it's these:
+
+- urth/mars separation
+  - the distinction between the two processes needs to be clean
+  - urth/mars removes synchronization requirements, making the ipc
+    protocol much simpler
+
+- king resolution
+  - need to be maintaining only one king
+
+- log truncation
+  - need disk usage to be O(size-of-snapshot) not O(size-of-log)
+
+- L2 (naive rollups)
+  - needs to be cheap and easy to get an ID
+
+- software distribution
+  - needs to be easy and safe to install and try apps
+
+- gall reform
+  - writing gall apps needs to not be so lifecycle/connection-oriented
+    and prone to complexity
+
+- data sync
+  - read-only fetches of data need to happen outside the regular ames
+    flow and be optimized for that purpose
+  - grains possibly relevant
+
+- jets
+  - jets need to be safely upgradable in a continuous era
+  - ideally, they get faster and simpler too
+  - paul's monadic interpreter (jet dashboard in hoon) is a possible
+    solution
+
+- data jets
+  - polymorphic representation for efficiency
+
+- terminal reform (native ui)
+  - step 1 is a richer terminal
+  - eventually this needs morph into a native UI language
+  - we shouldn't look this problem in the eye though, since we can't
+    usefully make progress on it.  a richer terminal is a tractable
+    problem that will teach us a lot.
+  - native UI needs to be built up from urbit and not stripped down from
+    landscape, else we'll accidentally taint it with earth stuff
+
+- security reform
+  - need to walk through every part of the system for security review
+    and fixes.  shouldn't need to make large changes, but this will be a
+    lengthy process
+  - after, every new feature needs to be reviewed with security in mind
+
+- permissions
+  - orthogonal to security reform is introducing a model for intra-ship
+    permissions
+  - related to but not a prerequisite for 3rd party software
+  - have a model for saving sensitive info, like api codes or bitcoin
+    keys
+
+- encrypt data at rest
+  - event log and checkpoint
+
+- performance
+  - compiler
+    - can and should be much faster
+  - allocator
+    - should be able to use less memory and be faster, even if through
+      ad-hoc hints
+    - possibly road model should be jettisoned altogether
+  - loom size/lfs
+    - need to be able to store large blobs
+    - not obvious that it should happen inside the loom, but maybe
+    - grains possibly relevant
+    - need be able to performantly snaphsot large arvos
+  - parallelism
+    - increased external use of the namespace, and make that executable
+      in parallel
+    - possibly "thunk replacement" to spin out longer-running tasks to
+      be executed in parallel
+  - ames
+    - should have much lower latency and significantly higher throughput
+
+- wet gates
+  - wet gates are useful enough that we "have" to use them, but painful
+    enough that they introduce a lot of complexity in both the compiler
+    and user code
+  - maybe dependent types can solve?
+
+- protection from evil vases
+  - needed to provide certain guarantees
+
+- alternate transports
+  - ames should be a lot more flexible about how to get packets from one
+    side to the other
+  - calling ames a "layer over UDP" should be as wrong as calling UDP a
+    "layer over wifi"; it should be a layer over an arbitrary transport
+
+- binary upgrades
+  - need to make it smooth and convenient to upgrade arvo and the
+    binary, possibly enforcing that it happens in lockstep
+
+- scry pinning
+  - scry should be referentially transparent even at the current date
+  - might include the "nonce" idea for sub-event precision
+
+- logging
+  - system and userspace should be able to log debug messages to files,
+    stdout, etc
+
+- clay tombstoning
