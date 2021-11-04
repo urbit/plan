@@ -9,3 +9,13 @@ ventures into the unknown.
 
 # yore/
 charted territory.
+
+## form
+
+each directory should have a `know.txt` describing acceptable subject matter and
+composition. as a rule, bugs should not be tracked in this repo.
+
+`nigh/` `near/` and `dare/` should be considered project proposals and held to a
+high standard, relative to their importance. `yore/` is mostly for past musings,
+miscellaneous writeups, or scrapped proposals that may have valuable or
+enlightening material.
