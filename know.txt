@@ -1,21 +1,39 @@
-# nigh/
-works to complete immediately.
+/nigh    # works to complete immediately
+/near    # works that should be completed
+/dare    # ventures into the unknown
+/yore    # charted territory
 
-# near/
-works that should be completed.
+/nigh is for projects which are either being actively worked on, planned
+"next" for someone, or which have a deadline.
 
-# dare/
-ventures into the unknown.
+/near is for projects which have been decided are a good idea, but
+nobody has scheduled time for it.
 
-# yore/
-charted territory.
+/dare is for speculative projects.  These are often incomplete and may
+be incompatible with each other.  Presence in this directory does not
+indicate endorsement or any plan to implement.
 
-## form
+/yore is for past musings, miscellaneous writeups, or scrapped proposals
+that may have valuable or enlightening material.
 
-each directory should have a `know.txt` describing acceptable subject matter and
-composition. as a rule, bugs should not be tracked in this repo.
 
-`nigh/` `near/` and `dare/` should be considered project proposals and held to a
-high standard, relative to their importance. `yore/` is mostly for past musings,
-miscellaneous writeups, or scrapped proposals that may have valuable or
-enlightening material.
+Bugs should not be tracked in this repo.
+
+Everything should be a text document, with a .txt extension.  This means
+it *must* look nice in an editor with no automatic word wrap; use the
+normal conventions.  Paragraphs should generally be wrapped to 72
+characters.  Try to note the @p of the author(s) at the top of the file
+so the reader knows who to follow up with.
+
+In general, each project should get one text file.  Use your judgment to
+define project boundaries, but don't split up a file just because it's
+big; it's easier to navigate a large file than to look through several
+files.
+
+You may commit directly to master; be bold.  Pull requests are not
+necessary, but you're welcome to use them as a way to solicit
+discussion.  If you have a half-done writeup that it's not worth having
+other people review, still commit it!  You may note at the top that it's
+in a half-baked state.
+
+Never rebase or otherwise `push -f` master.
