@@ -1,0 +1,75 @@
+~wicdev-wisryt
+
+As we start to use Clay for more things, it's getting increasingly
+annoying to constantly be switching between git and Clay.  Among the
+many necessary things to live in Clay full-time, we need commit
+messages.
+
+A commit message is a piece of text [any more structure? maybe
+title+body] which describes a commit.  If you only |commit, this is a
+list; if you also |merge, this is a DAG which overlays the DAG structure
+of commits themselves.
+
+There are three natural places to put a commit message:
+- in +yaki, as a `(unit @t)`
+- in a file in the desk, say /desk/commit, as a `@t` of the most recent
+  commit message
+- in a file in the desk, say /desk/story, as a DAG of `[@t tako]` pairs.
+  This could be simply `(map tako @t)`, or it could contain the DAG more
+  explicitly.
+
+Git is a useful model to look at, and it uses the first option.  Git's
+uses aren't all the same as Clay's though.  Git is used primarily as a
+way to communicate source code changes to either yourself in the future
+or to other pople.  Secondarily, it's used as a source for CI and CD.
+
+One of Clay's primary uses is as a distribution mechanism for software
+updates.  Another primary use is as a place for user or application
+data.  Secondarily, it is meant to be used by developers to communicate
+source changes.
+
+Git's essential data model is sufficiently general as to be effective
+for each of these uses.  However, in Clay there are generally more
+commits, and frequently these shouldn't have a commit message.
+
+This suggests that commit messages should be an overlay of the commit
+DAG.  Thus, you might ten commits but only 3 messages, corresponding to
+the 2nd, 7th, and 9th commits.  This gives a coarser DAG, and a useful
+view would be to "zoom" in on the second messagae to see that it really
+contains 5 sub-commits.
+
+An important consideration is whether we should permit commit messages
+to be modified after original commit.  Consider:
+
+- the developer should be able to present as clear of a story as they
+  want
+- the developer should be able to quickly commit without the anxiety
+  that they'll never be able to change that commit message
+- the actual history should be visible so that archeological digs can
+  succeed
+
+If we wish to support all three, then putting the commit message in the
++yaki or in a file as a @t are not an option.  In both of those cases,
+the hash changes if the message changes, so rewriting commit messages
+breaks history.
+
+However, if the entire DAG is in /desk/story, then we can rewrite the
+story at will.  In the rare cases where you need to recover the actual
+history, look at /desk/story in an old commit.  The actual history is
+still used for correctly finding the most recent common ancestor for
+merges, and none of the old hashes have broken.
+
+If /desk/story is a `(map tako @t)`, then you can rewrite commit
+messages but not ancestry.  If we also wish to support rewriting
+parentage, then a more powerful data structure is necessary.  Perhaps
+`[head=chapter (map chapter [message=@t parents=(list chapter) tako])]`.
+In this case we could even support a type of merge which operates on the
+story history instead of the actual history.
+
+One reason to put commit messages in userspace is that it lets us build
+something ideal for developers without worrying whether it's appropriate
+to be so opinionated in the kernel.
+
+In my opinion, the ideal prototype is to create a /desk/story of type
+`(map tako [title=@t body=@t])`.  This is easy to lower into the kernel
+or expand into a richer story model.
