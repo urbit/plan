@@ -1,0 +1,28 @@
+High-level performance risks for the runtime.  These are areas where
+we've taken a hard line on one side of a tradeoff, and we should
+evaluate how well those choices are working and how we can handle the
+cases we're trading off against.
+
+# Computational cost of nouns.
+
+We're choosing cons cells over arrays, that costs:
+- data locality, cache friendliness
+- lots of pointer chases
+
+# Managing persistent state that does not fit in RAM.
+
+We're choosing a single-level store which means there's no
+programmer-visible place to put data larger than RAM.
+
+Paging large amounts of data is slow, especially code, so it'll be
+important to make sure we don't do it often.
+
+# Parallelism and concurrency.
+
+We have a single-threaded event loop, which risks blocking computation
+on a single thread.
+
+# Cost of event log
+
+We choose to emit no effects before the log is written.  This introduces
+significant latency.
