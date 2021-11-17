@@ -1,0 +1,67 @@
+~silsyn-wathep
+
+Attempt to braindump the current state of the `%khan` control plane.
+
+## PRs
+
+* C driver -> next/vere:
+  <https://github.com/urbit/urbit/pull/5345>
+* Haskell client -> master:
+  <https://github.com/urbit/urbit/pull/5385>
+* Vane -> next/arvo:
+  <https://github.com/urbit/urbit/pull/5420>
+* Obsolete vane + haskell driver combined PR:
+  <https://github.com/urbit/urbit/pull/5351>
+
+## Status
+
+* +code get/reset is fully implemented end-to-end between the C king and
+  Haskell client.
+* |mass stub exists.
+* The protocol is just command/response: every command receives either an %ack
+  or a command-specific response whose head is the same @tas as the command
+  itself.
+* Any other message can come over the socket at any time, including %bail
+  messages that the driver tries to send in the case of errors. (This is to
+  support metric monitoring in future.)
+* Aspirationally, the client and driver should immediately close the connection
+  on any malformed message.
+
+## Questions and theories
+
+* What functionality do we want the vane to expose? Most restrictive: fixed set
+  of commands / queries. Most permissive: arbitrary scry + arbitrary event
+  injection. Josh suggested: arbitrary scry + arbitrary move.
+* It is not currently possible to differentiate arbitrary newt protocol
+  messages from ASCII text. We might want to preserve the ability to do so. How
+  should we do this?
+  * Proposal: change the framing so that the first 32-bit word is always
+    0x8000.0000 and the second 32-bit word is LSB-encoded length. (This
+    reserves the first word for version / flag info in future; probably
+    generally good practice.)
+* How do we handle runtime queries? One option: reserve the %king cell head.
+
+## TODOs/blockers
+
+* Overall
+  * Clean up error handling
+  * Clean up protocol spec
+  * Make a decision re newt framing
+* C driver
+  * Don't break Windows
+  * Implement (or at least make room for) runtime-specific queries
+
+## Workflow
+
+Since this is targeting multiple different parts of the system at once, each
+with their own release branches, I have been making heavy use of
+`git worktree` for development. E.g. from a source urbit repo:
+
+    git worktree add ../c3 jo/khan-c3
+    git worktree add ../arvo jo/khan-arvo
+    git worktree add ../into jo/into
+
+Then build the king out of c3, use it to boot a fakezod, copy in and commit the
+`pkg/arvo` directory from the `arvo` worktree (must be done manually since `-A`
+does not work for me), and send commands with e.g. `stack run into ~/zod code`
+from the `hs/` directory of the `into` worktree.
