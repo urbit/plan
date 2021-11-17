@@ -35,9 +35,9 @@ Attempt to braindump the current state of the `%khan` control plane.
 * It is not currently possible to differentiate arbitrary newt protocol
   messages from ASCII text. We might want to preserve the ability to do so. How
   should we do this?
-  * Proposal: change the framing so that the first 32-bit word is always
-    0x8000.0000 and the second 32-bit word is LSB-encoded length. (This
-    reserves the first word for version / flag info in future; probably
+  * Proposal: change the framing so that the first 32 bits are always
+    0x80 0x00 0x00 0x00 and the second 32-bit word is LSB-encoded length.
+    (This reserves the first word for version / flag info in future; probably
     generally good practice.)
 * How do we handle runtime queries? One option: reserve the %king cell head.
 
