@@ -13,6 +13,12 @@ Attempt to braindump the current state of the `%khan` control plane.
 * Obsolete vane + haskell driver combined PR:
   <https://github.com/urbit/urbit/pull/5351>
 
+## Initial target
+
+Initially it's +code, +hood/cors-approve 'https://horizon.tlon.network',
++hood/unlink %chat-cli, and whatever "send an invite to a group from ship a ->
+ship b" looks like
+
 ## Status
 
 * +code get/reset is fully implemented end-to-end between the C king and
@@ -65,3 +71,50 @@ Then build the king out of c3, use it to boot a fakezod, copy in and commit the
 `pkg/arvo` directory from the `arvo` worktree (must be done manually since `-A`
 does not work for me), and send commands with e.g. `stack run into ~/zod code`
 from the `hs/` directory of the `into` worktree.
+
+# Meetings
+
+## ~2021.11.17
+
+* ~master-morzod: what do we ship? what's a deliverable? for arbitrary scries /
+  events, we don't need a vane.
+* ~wicdev-wisryt: have a "hosting tools" desk, have threads in it, install them
+  where you want to use them. "Inject event with the thread, then run the
+  thread" could work for this. You need a vane for running threads with
+  req/res. (spider is an app: generate unique id, subscribe, poke, wait.
+  there's a pattern that works 100% of the time but you don't want to write it
+  in haskell or C. or hoon.)
+  * if you have a vane, say "invoke thread with arg", it gives you an answer;
+    you can use that from outside, makes azimuth app simpler, makes anything
+    that calls threads simpler
+  * take an app that runs threads now, put that in a vane. (eth-watcher best.)
+  * can support scries/pokes in driver directly
+* ~master-morzod: hesitation abt expanding use of threads; it's theoretical,
+  maybe not worth getting into. interesting possibility in placing this into a
+  vane: paves way for kicking computations out of the loop. threads are
+  suspendable, they already block. could imagine a thread interface that pushes
+  computations out of the loop.
+* where do things go?
+  * ~master-morzod: if you implement in driver, you have to decide whether the
+    paths are complete. vere can say "do it now" and push interpolation out to
+    the worker.
+* we need commands to the runtime, |meld etc
+* monitoring, event frequency, notifications
+* ~wicdev-wisryt: should scry, if ship and/or date are null, interpolate them
+* TODO insert notes
+
+* ~wicdev-wisryt post-meeting notes:
+  - scry should interpolate ship and date if they're null. This should be done
+    in arvo, so the driver is agnostic.
+  - For reading runtime info, we should just overlay the namespace with
+    runtime-specific stuff. Shouldn't try to standardize this until necessary.
+  - Similarly, arbitrary moves can control the runtime. If the move is
+    [%mars *], we handle it directly in the driver. Same about standardizing
+  - Other subscriptions coming from userspace can be added to khan later,
+    probably as "start a gall subscription, report all %facts, restart on
+    kick". Details will change with subscription reform But none of that needs
+    to happen now. The trio of scry, move, thread is plenty for a long time.
+
+  Lmk if you need help on running a thread. It's delicate, but it would take me
+  like an hour to write it. To understand it, read in app/eth-watcher the
+  start-cards section of +on-arvo and the non-helper-function part of +on-agent
