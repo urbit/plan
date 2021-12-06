@@ -1,0 +1,29 @@
+~wicdev-wisryt
+
+Under content distribution ideas, we usually have this flow in at least
+Ames and Eyre:
+
+- request version # at current date, which gives you a scry path
+- you invoke the scry path
+
+We do this so that most data is easily cacheable.  Finding "most recent
+version" is never truly cacheable, so we want that request to be as
+cheap as possible.
+
+Problem: two roundtrips for every request.
+
+Solution: add a pessimism flag to the first request.  If set, then we
+should respond to the request by automatically invoking the scry path
+and including that response.  Thus, with no caches this degrades to
+essentially the current (12/2021) behavior.
+
+However, generally the outermost cache should strip off the pessimism
+flag and instead just make the version request.  When it gets the scry
+path, it can check its own cache and send that cached result.  Usually
+the cache will have a low-latency connection to either the authoritative
+server or an upstream cache, so the double-latency will be much cheaper.
+
+This way, you can set the pessimism flag to save the latency of two
+roundtrips, at the cost of possibly downloading data you already have.
+Even then you'll only pay the cost of receiving from the outermost
+cache.
