@@ -118,3 +118,32 @@ from the `hs/` directory of the `into` worktree.
   Lmk if you need help on running a thread. It's delicate, but it would take me
   like an hour to write it. To understand it, read in app/eth-watcher the
   start-cards section of +on-arvo and the non-helper-function part of +on-agent
+
+* ~widced-wisryt thread API
+
+```
+state:
+stateless.  If later we want to support cancelling threads, add (map duct tid:spider)
+
+duct from runtime:
+//khan/0v1234/connection-number
+
+task:
+[%run-thread-v0 =beak name=term data=*]
+[%run-thread-v1 =beak name=term =mark =cage]
+
+gift:
+[%thread-result (each cage [term tang])]
+
+basic flow:
+- watch on /thread-result/[thread-id]
+- poke with %spider-start
+- receive poke-ack, complain if failed
+- receive watch-ack, complain if failed
+- receive %fact with mark %thread-fail or %thread-done
+- receive %kick
+
+++  poke-spider
+  |=  [our=@p =cage]
+  [%pass /start-thread %g %deal [our our] %spider %poke cage]
+```
