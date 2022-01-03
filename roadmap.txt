@@ -1,0 +1,160 @@
+This is a list of things that we intend to do to make Urbit complete and
+well-built.  This is not a product roadmap, which is to say, it defines
+the means more than the ends.  Of course the intended experience informs
+the means.
+
+Your audience is primarily people who know what these projects are.
+This is primarily a tool for thought, and secondarily a basis for
+further writing whose goal is communication.  So, don't justify
+projects; it's sufficient to look at the parentage of a project.  For
+example, "build CI in clay" is a child of "make clay suitable for
+everyday development", which is all the justification needed.  
+
+You can go into significant detail on projects in bullet form, but if
+you find yourself writing paragraphs or giving specific dates, you
+should place that in a separate file and link to it from here.
+
+The categorization is first by component, though some "components" are
+cross-cutting.  For example, Ames has a significant runtime component,
+but those runtime projects that are primarily about Ames go under the
+Ames component.  Security cuts across nearly all other components.  The
+general principle is to put the project under the most specific relevant
+category
+
+This is an optimistic list; if it appears on this list it means it
+passes some kind of prima facie "good idea if it works" test, it does
+not mean we've committed to it.
+
+The order within a component is very roughly chronological, but many
+things will happen out of order.  It's fine to list things which may not
+happen for years, but there should be a specific idea in mind.  "Build
+Urbit hardware" is too vague; "build a plugin for openWRT which caches
+scries" is fine.
+
+
+- Runtime
+  - Truncate event logs
+  - Properly handle exceptional circumstances
+    - Such as out-of-disk, out-of-loom, corrupt checkpoint
+  - Auto-download new binaries
+  - Jets
+    - Make safely upgradeable in a continuous era
+  - Create patterns for accessing and modifying arrays
+  - New Mars
+    - Implement stack-only interpreter
+    - Compile nock to machine code with LLVM
+  - Add scries in parallel threads
+  - Support paging memory to disk
+
+- Hoon
+  - Investigate dependent types as a way to extend Hoon types to make
+    them more coherent and regular
+  - Fix polymorphism, get rid of wet gates
+  - Better pattern matching (eg ?#)
+  - Make faster compiler
+  - Eliminate evil vases
+
+- Clay
+  - Make suitable for everyday development
+    - Add commit messages [dare/commit-messages.txt]
+    - Build revision-control tools and views
+    - Build CI system
+  - Make more efficient
+    - Allow tombstoning [dare/clay-tombstoning.hoon]
+    - Use remote scry vane
+      - [dare/fast-double-scy.txt]
+  - Clean up interface
+    - Clean up cares
+    - Make %a requests produce error messages
+    - Make %next/%mult/%many coherent -- should be one concept
+      - Make %next and %mult work over the network by extending %haw
+      - Shouldn't produce %wris, only %writ
+      - [%warp ship desk (unit [?(%this %next) case (set [care path])])]
+      - [%writ (unit [case (map [care path] (unit cage))])]
+      - Plus single-file special cases
+
+- Ames
+  - Allow flow deletion
+  - Get to state-of-the-art NAT traversal
+  - Support alternate transports
+    - Including LAN
+  - Use stars to route packets
+
+- Remote scry vane
+  - Make requests legible and cacheable
+  - Make clay use remote scry
+  - Make graph-store use remote-scry
+  - Make graph-store use clay
+  - Add caches to runtime, sponsors, etc
+
+- Security
+  - Entropy
+    - Audit existing entropy-as-argument approach
+    - Write vane for getting lots of entropy
+  - Runtime
+    - Convert Urth to internet-safe language
+    - Encrypt log and checkpoint at rest
+    - Harden runtime
+  - Ames
+    - Add tools to ban specific ships from everything
+  - Permissions
+    - Design system to keep apps from interfering with each other and
+      the kernel
+
+- Urbit ID
+  - Improve L1 contracts
+    - Make upgrading Ecliptic not change the address via ERC1967 proxy
+      pattern
+    - Allow off-chain galaxy voting
+      - Simplest is to allow multiple votes in a tx by appending
+        signatures
+      - DocumentPolls could be almost entirely off-chain
+      - Possibly there exist OTS tools for this
+    - Upgrade Claims to make transferring with reset cheaper
+    - Upgrade compiler
+    - Audit for any indices which can be removed
+  - Improve L2
+    - Allow moving ships back L2->L1 based on quarterly galaxy vote
+    - Allow batch signtures for L2 txs
+    - Add a mode of sending batches to L2 where the sender is msg.sender
+      - this would allow L1 contracts to send batches to L2
+  - Move to more sustainable substrate
+    - Likely a ZK rollup or validium
+  - Improve Bridge
+    - Add industrial mode
+    - Make Bridge into a general-purpose Ethereum wallet
+  - Improve hoon-side visibility into urbit ID
+    - Easy way to query chain state, maybe with CLI or sail app
+
+- UI
+  - Terminal
+    - Add 2D canvas mode
+    - Add session support
+    - Build libraries
+  - Sail
+  - Native
+    - Build prototype of UI described by nouns, rendered natiively
+  - Unified Polymorphic UI
+    - Allow describing UI elements independent of whether it's rendered
+      in terminal, web1, web2, or native
+
+- Port
+
+- Userspace
+  - Reform subscriptions to be solid-state
+    - Use remote scry vane
+    - Replace graph-store with Clay
+  - Make SSL happen easily and automatically in as many cases as
+    possible.
+  - Make app names be scoped within their desk
+
+- Hosting
+  - Build usable control plane [nigh/control-plane.txt]
+  - Suspend ships most of the time
+  - Enable phased rollout of OTAs
+     - At least inject blobs
+
+- Mobile
+  - Support DMs
+  - Support all of Groups
+  - Support Android
