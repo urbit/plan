@@ -1,0 +1,34 @@
+~wicdev-wisryt
+
+In a remote scry world, you can imagine a series of tubes of type
+"polling" or "subscription".  By cost, polling has a per-time element,
+while subscription does not.  OTOH, subscription requires persistence to
+terminate or demux a request while polling does not.
+
+We've also discovered some useful adapters, and likely more are
+possible:
+
+- Pass-through polling wo/persistence:       n*k/t -> n*k/t
+- Pass-through subscriptions wo/persistence: n*k -> n*k
+- Pass-through subscriptions w/persistence:  n*k -> k
+- Polling->subscription wo/persistence:      n*k/t -> k
+
+These are numbers of requests on each side of the adapter, not
+reductions compared to some kind of default replacement.
+
+n = number of ships
+k = number of different scry paths
+/t = per unit of time
+
+Of course, at the boundaries between the different entities you often
+add another `n` term.  For example if all the sponsors do pass-through
+subscriptions w/persistence, which has `k` on its right-hand side, the
+publisher still has `n*k` on its left-hand side.
+
+The entities potentially involved are:
+- Client's arvo
+- Client's runtime
+- Sponsor's runtime
+- Sponsor's arvo
+- Publisher's runtime
+- Publisher's arvo
