@@ -86,6 +86,12 @@ scries" is fine.
   - Make graph-store use remote-scry
   - Make graph-store use clay
   - Add caches to runtime, sponsors, etc
+    - Have runtime subscribe to arvo for updates on a path, so it can
+      cache negative responses
+
+- Behn
+  - make timers per-duct or at least per-vane, so they don't block the
+    queue
 
 - Security
   - Entropy
@@ -141,6 +147,8 @@ scries" is fine.
 - Port
 
 - Userspace
+  - Add +on-rift
+  - Give each subscription lifetime its own flow
   - Reform subscriptions to be solid-state
     - Use remote scry vane
     - Replace graph-store with Clay
