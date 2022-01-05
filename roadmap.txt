@@ -77,7 +77,7 @@ scries" is fine.
   - Allow flow deletion
   - Get to state-of-the-art NAT traversal
   - Support alternate transports
-    - Including LAN
+    - Support alternate discovery, such as local broadcast
   - Use stars to route packets
 
 - Remote scry vane
