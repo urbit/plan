@@ -147,3 +147,24 @@ basic flow:
   |=  [our=@p =cage]
   [%pass /start-thread %g %deal [our our] %spider %poke cage]
 ```
+
+### ~2022.1.4
+
+After-infra meeting notes:
+- %urth in the peek $% is weird; if we're not going to make it a deeper fiction
+  we should move it out to top level
+- making request-id a general noun and storing it would allow responses across
+  connections
+- move: idea was it's an arbitrary task for kernel, would not go to khan.
+- injecting ova: invariants must be maintained. you have raw access to any
+  driver. if you want effects back here, need a wire.
+- ted: you're asking arvo to do something. that's an event arvo will send to
+  khan as a task. can be completely generic; khan can ask arvo, other vanes.
+- no question: you need arbitrary event injection. question is: do we want a
+  happy path?
+- normally wrap things with khan, have escape to arbitary event injection
+- is there a response type?
+- request ids: stateless
+- peeks currently just close the socket on error and print the message out to
+  the console. if we want error codes, we want state; if we want state, we may
+  not want client-controlled request ids.
