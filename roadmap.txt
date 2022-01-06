@@ -155,6 +155,7 @@ scries" is fine.
   - Make SSL happen easily and automatically in as many cases as
     possible.
   - Make app names be scoped within their desk
+  - Move thread implementation to khan
 
 - Hosting
   - Build usable control plane [nigh/control-plane.txt]
