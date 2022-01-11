@@ -1,19 +1,19 @@
-/nigh    # works to complete immediately
-/near    # works that should be completed
-/dare    # ventures into the unknown
-/yore    # charted territory
+/next    # works to complete immediately
+/will    # works that should be completed
+/oort    # ventures into the unknown
+/past    # charted territory
 
-/nigh is for projects which are either being actively worked on, planned
+/next is for projects which are either being actively worked on, planned
 "next" for someone, or which have a deadline.
 
-/near is for projects which have been decided are a good idea, but
+/soon is for projects which have been decided are a good idea, but
 nobody has scheduled time for it.
 
-/dare is for speculative projects.  These are often incomplete and may
+/oort is for speculative projects.  These are often incomplete and may
 be incompatible with each other.  Presence in this directory does not
 indicate endorsement or any plan to implement.
 
-/yore is for past musings, miscellaneous writeups, or scrapped proposals
+/past is for past musings, miscellaneous writeups, or scrapped proposals
 that may have valuable or enlightening material.
 
 
