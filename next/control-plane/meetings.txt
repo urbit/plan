@@ -148,12 +148,12 @@ basic flow:
   [%pass /start-thread %g %deal [our our] %spider %poke cage]
 ```
 
-### ~2022.1.4
+## ~2022.1.4
 
 After-infra meeting notes:
 - %urth in the peek $% is weird; if we're not going to make it a deeper fiction
   we should move it out to top level
-- making request-id a general noun and storing it would allow responses across
+- making request-id a general atom and storing it would allow responses across
   connections
 - move: idea was it's an arbitrary task for kernel, would not go to khan.
 - injecting ova: invariants must be maintained. you have raw access to any
@@ -168,3 +168,17 @@ After-infra meeting notes:
 - peeks currently just close the socket on error and print the message out to
   the console. if we want error codes, we want state; if we want state, we may
   not want client-controlled request ids.
+
+## ~2022.1.6
+
+- we indeed don't want to do a namespace overlay for the runtime.
+- the interface desired is:
+  - start a thread
+  - scry
+  - inject arbitrary ovum
+  - runtime peek
+  - runtime command
+- it may be expedient to combine the runtime peeks and commands into one arm.
+- it may be expedient to have the khan vane implement threads instead of spider.
+- we probably want to decouple the vane from the driver, naming the driver
+  something like `conn`.
