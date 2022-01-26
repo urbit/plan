@@ -131,9 +131,15 @@ duct from runtime:
 task:
 [%run-thread-v0 =beak name=term data=*]
 [%run-thread-v1 =beak name=term =mark =cage]
+::  XX run older revisions?
+[%run-thread-v2 $@(=desk [=desk =case]) name=term =out=mark data=(cask)]
+::  when invoking, cask => cage
+::  you can scry for a conversion gate.
+::  look up the mark, convert to a vase.
 
 gift:
 [%thread-result (each cage [term tang])]
+[%thread-result-v2 (each (cask) goof]
 
 basic flow:
 - watch on /thread-result/[thread-id]
