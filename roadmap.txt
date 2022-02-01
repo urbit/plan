@@ -163,6 +163,7 @@ scries" is fine.
   - Make aqua into a full-featured integration testing system
   - Properly integrate unit tests and aqua into CI, and make it reliable
   - Make a nock/hoon debugger
+  - Make logging use syslog and add flags to write to disk, etc
 
 - Hosting
   - Build usable control plane [nigh/control-plane.txt]
