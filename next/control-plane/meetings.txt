@@ -132,14 +132,14 @@ task:
 [%run-thread-v0 =beak name=term data=*]
 [%run-thread-v1 =beak name=term =mark =cage]
 ::  XX run older revisions?
-[%run-thread-v2 $@(=desk [=desk =case]) name=term =out=mark data=(cask)]
+[%run-thread-v2 $@(desk beak) name=term =out=mark data=(cask)]
 ::  when invoking, cask => cage
 ::  you can scry for a conversion gate.
 ::  look up the mark, convert to a vase.
 
 gift:
 [%thread-result (each cage [term tang])]
-[%thread-result-v2 (each (cask) goof]
+[%thread-result-v2 (each (cask) goof)]
 
 basic flow:
 - watch on /thread-result/[thread-id]
@@ -188,3 +188,17 @@ After-infra meeting notes:
 - it may be expedient to have the khan vane implement threads instead of spider.
 - we probably want to decouple the vane from the driver, naming the driver
   something like `conn`.
+
+## ~2022.2.4
+
+- is khan the future of thread running?
+- what is happening with marks in threads? is the destination that threads produce cages? figure out what's going on with the $unit.
+- for future:
+- what is the relationship between khan and spider? dill/drum vs khan/spider
+
+## ~2022.2.11
+
+- incoming merge conflicts with mars/earth
+- generators kind of wrong; we should switch to threads, but there are already
+  a bunch of utility generators built up today because of lens/herb
+- could use parameterized types for %fyrd/%fard, and recurse in the vane
