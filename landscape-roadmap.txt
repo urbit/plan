@@ -1,0 +1,149 @@
+# Landscape Roadmap
+This roadmap is written as direct work on current Groups, simply listing 
+out everything that needs to be done. If we rewrite Groups to go along 
+with the new worldbuilding doc, that would remove/avoid a lot of the 
+work listed here, because it will be built with these considerations in 
+mind.
+
+## inventory
+
+### frontend architecture
+- serious refactoring needs to be done to remove lots 1:1 coupling 
+  between components
+- we do a lot of prop drilling which could be avoided in most cases 
+  using more stores or contexts
+- very often we make the same kind of composite data out of the basic 
+  stores we have, instead of doing this and proliferating the same logic 
+  everywhere we should probably make some composite queries/hooks that 
+  encapsulate that logic
+- a way to do generic state updating without writing lots of reducers
+- virtual scroller rewritten again
+- dump codemirror for better input or improve it somehow (possibly move 
+  to v6 beta)
+- once we have a more scry compatible architecture it would make more 
+  sense to switch to using something like react query for external state
+- more granular visibility into poke/subscription states/progress 
+  (explained further in design & ui)
+- https first (see doc in tlon memos or [here](https://docs.google.com/document/d/1vt_hjDiaRinqo2nkmVU5sEJ9U0Q7cvODnkMTUmao0Ec/edit))
+- move to using standard headless UI framework (radix UI) for underlying 
+  functionality interactions
+
+### backend architecture
+- one agent/monolithic architecture
+	- graph store needs to be abandoned for something more extensible and 
+    easy to use
+		- shouldn't need to change versions just for new types of content
+		- needs common rich text type
+		- whatever replaces graph store, should have some way to process 
+      unknown content types
+	- abandon group and metadata store
+		- we need more general purpose identity primitives 
+		- maybe contacts protocol fulfills this
+	- need subscripitions to be fixed and not shitty
+		- how do we genericize push and pull hooks in monolithic 
+      architecture
+	- versioning in monolithic app may be an issue
+- parsing of markdown is currently quite a hassle and it's a mix of 
+  frontend and backend
+	- we should move to something that stores the AST and does all parsing 
+    on the backend
+	- frontend can then consume AST and decide how it wants to render
+
+### ops, testing, and qa
+- implement integration testing using cypress or similar automated 
+  testing service to ensure critical paths are always protected
+- implement component testing using react testing library for core and 
+  more complex components to ensure proper behavior when system 
+  undergoes changes
+- implement mock data system to be able to run apps without running 
+  urbit, could simplify implementing things like storybook as well
+- implement basic automated error capture system to help detect issue 
+  frequency and collect debugging data
+- flesh out more storybook components for documentation and visual 
+  diff-ing
+- bring back release candidates
+
+### design & UI
+- transition to new indigo design system
+	- start new ui indigo ui library using grid tailwind config and ui 
+    components as starting point
+	- create general set of components for all Tlon products, things like 
+    ship name, ship avatar, ship search box, etc.
+	- port grid to new system, should be relatively minimal changes
+	- begin to port groups using new layouts from design
+	- generalize various components found in groups that would be useful 
+    in other apps and insert them into indigo
+- add in much more granular display of urbit native state and 
+  transitions
+	- for example, chat messages could actually show: sent to your urbit, 
+    my urbit received, sent to their urbit, their urbit received
+	- there's a large untapped space here which I think would further 
+    users knowledge of what a p2p server to server model looks like 
+    mechanically which helps Urbit be better understood overall
+	- similarly, anything poke or subscription based that needs to show a 
+    user loading should be easy to hook into and show states for. we 
+    could develop a reusable "job" system or something similar that 
+    captures this logic to build state machinery to determine what to 
+    display
+
+### performance optimizations
+- switch to tailwind css for more lightweight component rendering (also 
+  in UI work)
+- persisting graph keys so channels are available immediately
+- further code-splitting of large dependencies/code chains
+- removing/swapping large dependencies
+  - [ ] replace any-ascii
+  - [ ] replace moment
+  - [ ] change dependencies to peer-dependencies @urbit/api
+  - [ ] use mini css extract to remove css-loader
+  - [ ] remove/replace stacktrace
+  - [ ] see if yup can be tree-shaken
+  - [ ] checkout sigil-js for optimization
+  - [ ] remove aws-sdk
+  - [ ] remark?
+  - [ ] smaller code-mirror build?
+- check subscription order and/or deferring possibilities
+- further enhancements to virtual scroller
+	- possibly need different query model to support loading as we need
+	- look into any third party libraries that could replace what we have
+	- lock dynamic height chat messages, aka references and images
+- track down memory leaks likely with our stores
+
+### image handling
+- strip exif data from front-end, using something like piexifjs
+- resize images from front-end, using something like pica
+
+### groups features
+- ability to invite people external to urbit into a group
+	- requires coordination with planet sales, bridge, and hosting/port
+	- possibly also requires %khan
+- video and audio chats
+	- requires generalizing switchboard and icepond and likely placing 
+    them into %garden
+	- needs both TURN and SFU work to make group chatting work well
+		- these are currently being worked on in grants I believe
+- in app prompt to reload app on OTA
+	- should be possible with latest hark changes
+- bring back hop, auto ship/group/chat completion
+
+### grid features
+- ability to reorder tiles
+	- we should be able to drag and drop tiles to have our own order
+- alternate tile display like a list?
+- dynamic tiles
+	- we should be able to render a tile as an application itself a la 
+    weather and clock
+	- some experiments with SVG and/or iframes could show us what's 
+    possible
+	- likely would have to add some identifier to docket to specify that 
+    the app should be rendered in this way and not a link
+- better leap capabilities
+	- leap should be able to receive entries from any app
+	- some system needs to be in place to prioritize certain entries, 
+    specify how things get rendered, etc.
+
+### future
+- digital basics, groups is pre-assembled configuration, ed's vision
+	- people can reassemble components as they want
+	- composable terminal interface, can later move to GUI
+- protocolize whatever we have to make available to the ecosystem
