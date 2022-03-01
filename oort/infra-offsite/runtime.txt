@@ -1,0 +1,11 @@
+Ted's three things the runtime needs to become real
+
+(0.) Event log truncation.
+1. Remove the loom size restriction.
+2. New mars / Nock performance.
+3. Security hardening.
+
+(Next stage:)
+- shared memory IPC
+- real logging
+- robust (e.g. raft) event log
