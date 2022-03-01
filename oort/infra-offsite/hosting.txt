@@ -1,0 +1,8 @@
+## OTA running
+
+Generally speaking, with n ships on a machine, you want to run one OTA at a
+time.
+
+Arvo should emit a wire with its %doze effect. The runtime could use that to
+figure out whether it's an OTA. The runtime would then say "I'm going to do an
+OTA", the others could then wait.
