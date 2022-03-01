@@ -1,0 +1,16 @@
+Topic: logging system in Urbit
+Date: 2022 Mar 01
+Location: Mexico City
+Context: discussion between Bren, Joshin, Peter, and Ted
+Notes: 
+- Urbit needs to produce detailed log files in addition to human-friendly (ish)
+  console output.
+- Any logging system that we build and/or adopt should be simple and use an
+  easily parsable log format. 
+- Contorting our needs to fit some existing service should be avoided.
+- First step: adapt logging macro that writes to the console and also optionally
+  a log file provided at the command line
+  - Similar to u3l_log() but using file descriptors instead of file streams
+    (i.e. FILE*)
+  - Add metadata (pier, timestamp, event number, etc.) to log file but exclude
+    from console
