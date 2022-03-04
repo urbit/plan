@@ -15,7 +15,6 @@ immediately, it tries to automatically convert up or down the chain.
 Maybe you should generally specify the mark you expect to receive?
 Would help know when to hook in to conversion functions.
 
-
 |%
 ++  mark  ?@(@tas [@tas @ud])
 ++  watch-ack
@@ -26,6 +25,161 @@ Would help know when to hook in to conversion functions.
 --
 
 
+Each mark version is in its own file.  Here's an example tree:
+
+/mar/graph-update
+/mar/graph-update/0
+/mar/graph-update/tlon-1
+/mar/graph-update/uqbar-1
+/mar/graph-update/unified-2
+
+/mar/graph-update
+|%
+++  late  %unified-2
+--
+
+/mar/graph-update/0
+|%
+++  rock  =update:zero
+--
+
+/mar/graph-update/tlon-1
+/+  graph-update-0
+|%
+++  rock  =update:one
+++  from
+  :*  :-  %0
+      |=  =rock:v0
+      ^-  rock
+      update(update-0 ...)
+  ==
+--
+
+/mar/graph-update/uqbar-1
+/+  graph-update-0
+|%
+++  rock  =update:two
+++  from
+  :*  :-  %0
+      |=  =rock:v1
+      ^-  rock
+      update(update-1 ...)
+  ==
+--
+
+/mar/graph-update/unified-2
+/+  graph-update-tlon-1
+/+  graph-update-uqbar-1
+|%
+++  rock  =update
+++  from
+  :~  :-  %tlon-1
+      |=  =rock:tlon-1
+      ^-  rock
+      update(update-2 ...)
+    ::
+      :-  %uqbar-1
+      |=  =rock:uqbar-1
+      ^-  rock
+      update(update-2 ...)
+  ==
+++  grad
+  |%
+  ++  wave
+    $%  [%add-key =resource]
+        [%del-key =resource]
+        [%add-tag tag=term]
+        [%del-tag tag=term]
+    ==
+  ++  wash
+    |=  [=rock =wave]
+    ^+  rock
+    ?-    -.wave
+        %add-key
+      ?.  ?=(%keys -.rock)  rock
+      rock(resources (~(put in resources.rock) resource.wave))
+    ::
+        %del-key
+      ?.  ?=(%keys -.rock)  rock
+      rock(resources (~(del in resources.rock) resource.wave))
+    ::
+        %add-tag
+      ?.  ?=(%keys -.rock)  rock
+      rock(tags (~(put in tags.rock) tag.wave))
+    ::
+        %del
+      ?.  ?=(%keys -.rock)  rock
+      rock(tags (~(del in tags.rock) tag.wave))
+    ==
+  --
+++  grow
+  |_  =rock
+  ++  noun  upd
+  ++  json  (update:enjs rock)
+  ++  mime  [/application/x-urb-graph-update (as-octs (jam rock))]
+  --
+::
+++  grab
+  |%
+  ++  noun  update
+  ++  json  update:dejs
+  ++  mime  |=([* =octs] ;;(update (cue q.octs)))
+  --
+--
+
+One nice feature of this is that adding a new version does not require
+changing any earlier version files (although you might in practice
+remove obsolete conversions to/from other marks).  Instead, you add a
+new file and change the root +late to point to your new version.
+
+Note that +from is ordered, defining the preferred upgrade path.
+
+In some cases you might want to "skip" versions.  For example, you want
+%2 to convert straight to %7.  To do this, in %7's +from, you want to list
+the %2 conversion before the conversion from %6.
+
+
+## Downgrades
+
+For pokes, you don't need to downgrade losslessly.  For subscriptions
+you usually do need to do that, otherwise you won't perfectly replicate
+the state machine.
+
+So, we could choose to support arbitrary downgrades, but in practice we
+only want to support conversions which follow the law that upgrading
+after downgrading is identity.
+
+If you do define a downgrade, it should be defined similar to +from, and
+it should be defined in the later version.
+
+
+
+## Overlays
+
+Another idea that might be useful in some contexts:
+
+A mark overlay says e.g. "this mark, except +wash is different".  This
+is implemented by trying the function in the overlay first, and if it
+doesn't exist, try the original mark.  This can even be used to define
+old versions of marks in different files.
+
+/+  base-mark
+:+  %overlay  %base-mark
+|%
+++  grad
+  |%
+  ++  wash
+    |=  [=rock:v3:base-mark =wave:v3:base-mark]
+    ^-  rock:v3:base-mark
+    ...
+  --
+--
+
+
+
+## Rejected ideas
+
+
 /+  *graph-store
 =*  as-octs  as-octs:mimes:html
 |%
@@ -33,46 +187,44 @@ Would help know when to hook in to conversion functions.
   |%
   ++  rock  =update:zero
   ++  tag   %0
-  ++  next  %1
-  ++  grow
-    |%
-    ++  up
-      |=  =rock
-      ^-  rock:v1
-      update(update-0 ...)
-    --
   --
 ::
 ++  v1
   |%
   ++  rock  =update:one
   ++  tag   %1
-  ++  next  %2
-    |%
-    ++  up
-      |=  =rock
-      ^-  rock:v2
-      update(update-1 ...)
-    --
+  ++  from
+    :*  :-  %v0
+        |=  =rock:v0
+        ^-  rock
+        update(update-0 ...)
+    ==
   --
 ::
 ++  v2
   |%
   ++  rock  =update:two
   ++  tag   %2
-  ++  next  %3
-    |%
-    ++  up
-      |=  =rock
-      ^-  rock:v3
-      update(update-2 ...)
-    --
+  ++  from
+    :*  :-  %v1
+        |=  =rock:v1
+        ^-  rock
+        update(update-1 ...)
+    ==
   --
 ::
 ++  v3
   |%
   ++  rock  =update
   ++  tag   %3
+  ++  from
+    :*  :-  %v2
+        |=  =rock:v2
+        ^-  rock
+        update(update-2 ...)
+      ::
+        [%v3rc1 v3rc1-to-v3]
+    ==
   ++  grad
     |%
     ++  wave
@@ -115,22 +267,4 @@ Would help know when to hook in to conversion functions.
     ++  json  update:dejs
     ++  mime  |=([* =octs] ;;(update (cue q.octs)))
     --
---
-
-
-In addition, we should allow mark overlays: e.g. "this mark, except
-+wash is different".  This is implemented by trying the function in the
-overlay first, and if it doesn't exist, try the original mark.  This can
-even be used to define old versions of marks in different files.
-
-/+  base-mark
-:+  %overlay  %base-mark
-|%
-++  grad
-  |%
-  ++  wash
-    |=  [=rock:v3:base-mark =wave:v3:base-mark]
-    ^-  rock:v3:base-mark
-    ...
-  --
 --
