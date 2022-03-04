@@ -1,0 +1,136 @@
+A versioned mark is used to allow the system to automatically convert
+between versions of a mark.  It consists of a list of mark definitions,
+version tags, and conversion functions up (and possibly down) the list.
+
+When you subscribe, you get a watch-ack telling you whether it
+succeeded, failed, or is blocked on subscription negotiation.  You don't
+need to do anything if it's blocked, it'll automatically start as soon
+as you have compatible marks.
+
+Behind the scenes, this is implemented similar to the push/pull hook
+libraries, by subscribing to a /version path for each mark.  The main
+difference is that if the versions don't match, instead of failing
+immediately, it tries to automatically convert up or down the chain.
+
+Maybe you should generally specify the mark you expect to receive?
+Would help know when to hook in to conversion functions.
+
+
+|%
+++  mark  ?@(@tas [@tas @ud])
+++  watch-ack
+  $%  [%done ~]
+      [%blocked their-version=@tas]  ::  will resume when versions are compatible
+      [%fail =term =tang]
+  ==
+--
+
+
+/+  *graph-store
+=*  as-octs  as-octs:mimes:html
+|%
+++  v0
+  |%
+  ++  rock  =update:zero
+  ++  tag   %0
+  ++  next  %1
+  ++  grow
+    |%
+    ++  up
+      |=  =rock
+      ^-  rock:v1
+      update(update-0 ...)
+    --
+  --
+::
+++  v1
+  |%
+  ++  rock  =update:one
+  ++  tag   %1
+  ++  next  %2
+    |%
+    ++  up
+      |=  =rock
+      ^-  rock:v2
+      update(update-1 ...)
+    --
+  --
+::
+++  v2
+  |%
+  ++  rock  =update:two
+  ++  tag   %2
+  ++  next  %3
+    |%
+    ++  up
+      |=  =rock
+      ^-  rock:v3
+      update(update-2 ...)
+    --
+  --
+::
+++  v3
+  |%
+  ++  rock  =update
+  ++  tag   %3
+  ++  grad
+    |%
+    ++  wave
+      $%  [%add-key =resource]
+          [%del-key =resource]
+          [%add-tag tag=term]
+          [%del-tag tag=term]
+      ==
+    ++  wash
+      |=  [=rock =wave]
+      ^+  rock
+      ?-    -.wave
+          %add-key
+        ?.  ?=(%keys -.rock)  rock
+        rock(resources (~(put in resources.rock) resource.wave))
+      ::
+          %del-key
+        ?.  ?=(%keys -.rock)  rock
+        rock(resources (~(del in resources.rock) resource.wave))
+      ::
+          %add-tag
+        ?.  ?=(%keys -.rock)  rock
+        rock(tags (~(put in tags.rock) tag.wave))
+      ::
+          %del
+        ?.  ?=(%keys -.rock)  rock
+        rock(tags (~(del in tags.rock) tag.wave))
+      ==
+    --
+  ++  grow
+    |_  =rock
+    ++  noun  upd
+    ++  json  (update:enjs rock)
+    ++  mime  [/application/x-urb-graph-update (as-octs (jam rock))]
+    --
+  ::
+  ++  grab
+    |%
+    ++  noun  update
+    ++  json  update:dejs
+    ++  mime  |=([* =octs] ;;(update (cue q.octs)))
+    --
+--
+
+
+In addition, we should allow mark overlays: e.g. "this mark, except
++wash is different".  This is implemented by trying the function in the
+overlay first, and if it doesn't exist, try the original mark.  This can
+even be used to define old versions of marks in different files.
+
+/+  base-mark
+:+  %overlay  %base-mark
+|%
+++  grad
+  |%
+  ++  wash
+    |=  [=rock:v3:base-mark =wave:v3:base-mark]
+    ^-  rock:v3:base-mark
+    ...
+  --
+--
