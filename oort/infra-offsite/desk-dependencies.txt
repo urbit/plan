@@ -1,0 +1,31 @@
+# big desks & little desks
+
+big desk: current local desk behavior
+
+little desk:
+- do not care whether it compiles or not
+- current foreign desk/mirror behavior (also past revisions of local)
+- don't fill in the ankh
+- don't respond to non-.hoon %x requests
+  - or maybe just give back %noun
+
+can toggle between big and little on demand, for example for kelvin upgrade
+
+source desks are little desks, let you also save uncompiling versions of source
+"build desks" fuse the source desk with its dependencies, resulting in a big desk
+
+maybe a property of revisions instead of full desks?
+easier to toggle, lets you make this referentially transparent
+tbd
+
+encourage distributing via source desks, works well with remote scry etc
+but distributing the build desk remains an option
+
+a big desk is just a desk
+a little desk is a disc
+
+ergonomic problem though: edit files across multiple desks
+-> if you write into a build desk, the write looks through the list of dependencies, and writes to the last that has the file (if it's a local desk, just complain if it's not)
+
+
+
