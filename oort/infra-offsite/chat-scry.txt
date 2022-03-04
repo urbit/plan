@@ -1,0 +1,138 @@
+General scry path, over the wire: /~ship/rift/life/vane/care/case/spur
+
+In general, we want to lean on the checkpoint+update log model at every
+level.  Thus, a subscription type requires:
+
+- Data checkpoint type: mold
+- Data update type: mold
+- Data patch: function [checkpoint, update] -> checkpoint
+
+Sometimes you want to download and keep synced to only part of a large
+piece of data.  The publisher has it all, but maybe you only want the
+most recent 1k messages.  Or maybe you want a top-level manifest.  For
+this, we introudce the idea of an index, or derived view.
+
+- Index checkpoint type: mold
+- Index update type: mold
+- Index patch: function [index checkpoint, index update] -> index checkpoint
+- Indexer: function [index checkpoint, data update] -> (list index update)
+
+Sometimes you want to spool out an index, instead of forgetting it as
+aggressively as the index.  We call these spools:
+
+- Spool checkpoint type: mold
+- Spool update type: mold
+- Spool patch: function [spool checkpoint, spool update] -> spool checkpoint
+- Spool stitch: function [spool checkpoint, index update] -> spool checkpoint
+
+An index is something chosen by the publisher, identical between
+subscribers, and checkpoints are cached.  A spool is chosen on the
+subscriber, and may not be identical between subscribers.
+
+
+
+There's two general approaches you can take to getting info from a
+publisher.  First, you can lean on replicated state machines, so that
+you always get the guarantee that you have synced exactly what the
+publisher had (possibly in its index), and this is exactly what the
+other subscribers got (therefore it's cacheable).  When you don't want
+the whole state, you fully sync an index.
+
+Second, you can say sync the whole state, but if you don't want the
+whole state, you partially sync the state.  Then, there's only one
+checkoint type: the whole state.  However, this state could have holes
+in it.
+
+In the first case, "last 100 messages" is represented as a list of
+messages.  In the second case, it's represented similar to a semi-noun.
+It's the entire chat state, except most of it is explicitly marked as
+unknown, eg "9000 msgs missing here".  Only the last 100 messages exists
+directly.  A semi-checkpoint, if you will.
+
+Both have advantages, but in general replicated state machines are both
+easier to reason about (more lawful) and more flexible.  They support
+indices that are not simple subsets of the whole state.
+
+Even in replicated state machines, you can recreate a semi-checkpoint as
+a spool.
+
+
+Names:
+
+mar/chat.hoon
+|%
++$  wave
+  $%  [%add =msg]
+      [%del =msg]
+  ==
+::
++$  rock  (list msg)
+::
+++  wash
+  |=  [=wave =rock]
+  ^+  rock
+  ?-  -.wave
+    %add  [msg.wave rock]
+    %del  (del-from rock msg.wave)
+  ==
+--
+
+[%give /my/pub %wave %add *msg]
+
+
+Indexer:
+
+mar/chat/recent.hoon
+/+  chat
+|%
++$  wave
+  $%  [%add =msg]
+      [%del =@ud]
+  ==
+::
++$  rock  [start=@ud msgs=(list msg)]
+::
+++  wash
+  |=  [=wave =rock]
+  ^+  rock
+  ?-    -.wave
+      %del  rock(msgs (skip msgs.rock |=(msg =(num ud.wave))))
+      %add
+    =/  len  (lent msgs)
+    ?:  (lth len 200)
+      rock(msgs [msg.wave msgs.rock])
+    [(add 100 start.rock) [msg.wave (scag 100 msgs.rock)]]
+  ==
+::
+++  surf
+  |=  [=wave:chat =rock]
+  ^-  (list ^wave)
+  ?-    -.wave
+      %add  ~[wave]
+      %del
+    ?:  (lth ud.wave start.rock)
+      ~
+    ~[wave(msg ud.wave)]
+  ==
+--
+
+
+In other news:
+
+++  ames
+  |%
+  ::  %keen path omits [ship life rift]
+  ::  %pine path omits [ship life rift case],
+  ::    where the case is replaced with /~/
+  ::
+  +$  task
+    $%  [%keen =ship =path]
+        [%pine cas=?(%ud %da %tas) =ship =path]
+        ::  ...
+    ==
+  ::  response path is fully qualified, i.e. includes life, rift, and case
+  +$  gift
+    $%  [%tune seal=@ux =path =page]  ::  page is [mark *]
+        ::  ...
+    ==
+  --
