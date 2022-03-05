@@ -1,0 +1,236 @@
+status as of ~2022.03.05:
+- all work done in this area (see description of phase 1 below) still pending in the next/dill branch.
+- webterm updated (but not yet released) to support multiple sessions.
+- experimentation on 2d-drum has begun.
+
+--
+
+~2021.06.15
+(never formally published, saving here for completeness)
+
+# next-generation terminal, phase one
+
+In September of last year I posted command-line-evolution.txt to the urbit-dev
+mailing list[1], outlining the state of Urbit's terminal stack, its problems,
+and proposed solutions.
+
+If you have not read that yet, you may want to do so now for some additional
+context. At the very least, if you are not familiar with Urbit's terminal
+stack, read the overview section. I will not be repeating that explanation
+here.
+
+With the first phase of terminal work being ready for release, now seems like
+a good time to return to this topic. Below I will describe the changes that
+have been made so far, and the current predictions for the road ahead.
+
+
+## phase one: groundwork
+
+PR urbit/urbit#4463, "term: next-gen, phase one"[2] lays the groundwork for
+more visible improvements. Most importantly, it adds a few primitives that
+enable new kinds of terminal behavior. In order to achieve that, it refactors
+the existing stack to decouple its implementation from the prompt-centric
+experience it has been providing.
+
+### un-prompt
+
+The default (and only) terminal app, drum (part of hood), implements a prompt
+and lets you cycle through different applications using it. This prompt had
+leaked into the implementations of both dill and the runtime though, adding
+friction when trying to deviate from the prompt-centric experience.
+
+We have now removed "updating the prompt" from the dill interface, and dill
+no longer keeps track of the prompt at all. The runtime still tracks the
+prompt, sort of, for... reasons.
+
+The problem is, both dill and the runtime may want to write output to the
+screen without involving the terminal app. Think system output for example, or
+debug printfs. Both of those would be much better at home in a logging system
+of sorts, rather than intertwined with formal terminal output, but that is a
+whole project of its own.
+
+What we ended up doing now, for the short term, is having dill and the runtime
+meddle exclusively in the *default* terminal session (more on sessions below),
+letting them assume prompt semantics for just that session, not the terminal
+experience as a whole.
+
+For dill, this means always drawing system output to the default session,
+above the bottom line of the screen, and then asking the terminal app to
+restore the cursor position.
+
+For the runtime, this means inserting debug and log output between the last
+and second-to-last lines of the screen, but only if we are connected to the
+default session.
+For drawing the spinner, we must remember the contents of the bottom line of
+the screen, and ensure the spinner always gets drawn there, so that we then
+may redraw its original contents once the spinner disappears.
+
+Again, this is not the most ideal implementation, but it is enough to let us
+move on with our lives for the time being. Further improving upon this is
+definitely still on the list, but should now be largely independent of other
+terminal work.
+
+### sessions
+
+We mentioned "sessions" in the previous section, and how they let us punt on
+larger-scale problem solving by restricting certain behaviors to the "default
+session". What is that all about?
+
+Dill has technically always supported multiple sessions living side-by-side.
+That is, it can keep track of separate connections, potentially to different
+terminal apps, and route everything accordingly. This functionality, however,
+was never actually used.
+
+These new changes intend to revivify the sessions implementation. Sessions now
+have names, instead of being identified by duct, and inputs are sent to target
+sessions explicitly. This lets you connect to the same session from multiple
+clients/processes.
+
+The default session, then, is the dill session created during the boot process.
+It uses the identifier `%$` (empty string constant) and is always connected
+to drum. This lets dill and the runtime make the assumptions discussed above.
+
+Notably, this means that outside the default session, system output will no
+longer interleave itself with application output. This is nice for the current
+append-to-bottom class of terminal applications, since it lets you isolate
+their output. But it is absolutely *essential* for full-screen terminal
+applications like text editors.
+
+We should mention here that while sessions are supported by the system, none
+of the Urbit terminal clients let you use them yet. More on this in phase two.
+
+### 2d cursor movement
+
+You cannot reasonably implement such applications without free-form screen
+modifications though. So the dill interface was updated to support that.
+
+Now, instead of content always replacing an entire line, it simply draws
+at the last selected cursor location, regardless of what is presently on-screen
+there. Additionally, the cursor can now be moved in two dimensions, instead of
+only to columns at the bottom of the screen.
+
+### mouse support?
+
+Oh, there is one more thing. Mouse-click support! Sort of.
+
+The catch here is that we are (currently) only interested in click events, and
+do not want to hijack scrolling or other input events, as this could interfere
+with things like the tmux session Urbit might be running in. So the runtime
+asks the terminal emulator it is running in for precisely just mouse clicks.
+From light testing, it seems most terminal emulators do not support this
+reporting mode, and only support full reporting (including click release,
+scroll events, etc.). As such, mouse clicks may remain absent from your Urbit
+experience for now.
+
+The good news is that the web terminal has been reimplemented, and does indeed
+support mouse-clicks in the way we want.
+
+Drum, however, has not yet had its grand facelift. It only reacts to click
+events in the prompt (to move the cursor around), and does not pass clicks on
+to the currently selected application. In fact, the sole protocol has not been
+changed at all, and does not support the new primitives that have been added.
+More on this in phase three.
+
+### release
+
+The release of this phase of work is somewhat special, in that it breaks
+compatibility with the runtime. That is, to apply and successfully run the
+arvo-side changes, you will need to update the new runtime.
+
+This is the first time a release will make use of the version negotiation
+mechanism that was part of the final breach.[3] When an update gets blocked
+due to version negotation, landscape will show a persistent notification,
+prompting you to download a newer runtime, after which you can retry applying
+the update.
+
+
+## phase two: reifying sessions
+
+Now that we have all these primitives, we should create an environment that
+lets us use them to their full potential. After phase one, there is still an
+obvious missing ingredient: client-side support for sessions.
+
+### clients
+
+A good first step here is updating the web terminal to let you create, delete,
+and switch between sessions. Webterm is the ideal playground because it has a
+rich context within which the terminal sessions run. This lets us largely
+punt on decisions around keyboard shortcuts and other text-only session
+management concerns. We can just slap on some buttons for you to click on, and
+call it sufficient.
+
+Sessions support in the runtimes is a slightly more complex endeavor. The
+easiest short-term answer here is that you spin up a separate process when
+connecting to a non-default session. But perhaps there are ways to get fancier
+with it? We will experiment, but having sessions supported webterm-side lets
+us move on regardless of what the runtime work ends up looking like.
+
+### userspace
+
+Less obviously missing is awareness of sessions in userspace. Drum is
+currently implemented as a single-session terminal. Even if we were to open a
+new session in our client, drum would just mirror the contents between it and
+the default session.
+
+So drum needs to be updated to account for sessions. While this does not seem
+like too complex a change on the surface, there are some unanswered questions
+here around the `|link`ing of applications. Do new drum sessions still
+automatically connect to dojo? How does `|link` know which session to link
+the app into?
+
+Applications themselves might also want to account for drum session identifiers
+if they are not already doing so. During its graph-store upgrade, chat-cli was
+upgraded to do so.[4] Dojo should already support this as well. Community
+developers who have made sole (or shoe) applications may want to reevaluate
+their implementations in light of this. The drum subscription path may see
+some small changes. Anything breaking will be announced when it happens.
+
+
+## phase three: full native terminal
+
+Once sessions are in, we can start going wild. The first order of business is
+to make a second terminal handler app, an alternative to (fork of?) drum. It
+should track and display buffers and scrollback on a per-app basis, giving
+each app its own visual real-estate. Its protocol should support the newly
+added primitives, or perhaps provide a slightly higher-level layer on top of
+them.
+
+In the above, "scrollback" means the full thing. Built-in shortcuts to scroll
+back up the buffer to see previous output and copy parts of it out. Throw in
+support for mouse -drag and -scroll events, and we suddenly have a complete,
+fully-featured in-arvo terminal experience.
+
+It will probably be necessary to build a small application or two on top of
+this, to see if it is up to snuff. Examples that immediately come to mind are
+a simple text editor, and a scry namespace explorer. A souped-up chat-cli
+might be nice too, but really we want the full suite of landscape applications
+to have terminal equivalents. And of course, many third party applications
+as well.
+
+
+## phase four: a future yet unseen
+
+At this point we should have enough affordances in the terminal to start
+experimenting with apps and libraries in the direction of "ui protocol".
+Generic ways of describing interfaces and binding behavior to them. Graphical
+clients that deliver richer or more accessible experiences outside of the
+terminal, while being compatible with originally text-only applications.
+
+Many unanswered questions here. Many unasked ones, too. If any readers are
+aware of prior art or literature that we must know about and consider when
+doing this work, please reach out with it, we would love to see what is
+already out there!
+
+
+## closing thoughts
+
+The current release has been a long time coming. But with this foundational
+work complete, we can move on to more exciting parts of terminal improvement.
+Before we know it, native interface development will be more than just a
+distant dream!
+
+
+[1] https://groups.google.com/a/urbit.org/g/dev/c/ubp3UNxkQBc/m/zsB_5rxOBAAJ
+[2] https://github.com/urbit/urbit/pull/4463
+[3] https://github.com/urbit/urbit/pull/4010
+[4] https://github.com/urbit/urbit/pull/4000
