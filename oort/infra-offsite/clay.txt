@@ -1,0 +1,26 @@
+Clay has a whole sequence of improvements queued up:
+
+- Commit messages
+  - initial implementation nearly complete
+  - see ../commit-messages.txt
+
+- Tombstoning
+  - draft partially completed
+  - see ../clay-tombstoning.hoon
+
+- Subscription cleanup
+  - draft completed
+  - see ../../soon/clay-subscription-cleanup.txt
+
+- New desk/disk dev workflow
+  - aka desk dependencies
+  - see desk-dependencies.txt
+
+- Lean on replicated state machines
+  - upgrade marks and implement through userspace
+  - see chat-scry.txt
+
+- Versioned marks and subscriptions
+  - make versions of marks legible to the system
+  - use them to negotiate versions for all subscriptions
+  - see versioned-marks.txt
