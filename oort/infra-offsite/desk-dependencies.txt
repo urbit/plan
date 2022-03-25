@@ -1,4 +1,82 @@
-# big desks & little desks
+# slides
+
+- Problem statement: The workflow for developing apps is bad.
+
+  - Dependencies are really annoying.
+
+    - You have to build a complicated structure in git with
+      symbolic-merge.sh and use special flags to `cp` to reify
+      symlinks.
+
+    - You have to fetch and update dependencies yourself from the
+      upstream Github and integrate them into your project tree.
+
+  - You have to think about files you didn't write, because they're
+    all mixed up.  This also makes the project tree hard to read
+
+
+- Essentially, the current desk system is optimized for its technical
+  benefits, not its workflow
+
+  - Each desk completely specificies its build results, and all code
+    is available.
+
+
+- When you have competing concerns like technical robustness vs
+  quality of workflow, instead of going 50/50, you should try to make
+  two environments, each optimized for its purpose.
+
+  - The existing build desk, optimized for running and distribution
+
+  - A source "disk", optimized for workflow
+
+
+- A source disk contains:
+
+  - Files you wrote
+
+  - A list of dependencies, specified as beaks, e.g.
+    `~paldev/pals-dev/6`
+
+  - That's it!
+
+
+- A build thread converts a source disk into a built desk by
+  successively merging (`|fuse`) all the dependencies and the source
+  disk.
+
+  - This is where code is run out of.
+
+
+- For this to work, you need to be able to download the dependencies
+  within Urbit.
+
+  - Could use our http client to download from Github
+
+  - But no: always develop on mainnet!
+
+  - Use a moon, and breach it any time you need to.
+
+  - This lets you download dependencies over the network natively.
+
+  - And it opens up a bunch of possible developer tooling (eg
+    collaborative code editing, native pull requests)
+
+
+- Status:
+
+  - 2021: wrote `|fuse` in anticipation of this sort of workflow
+
+  - 2021 Q4/2022 Q1: wrote `story`, an initial system for commit
+    messages in Clay
+
+  - Q2 and Q3: Support disks in Clay, write build thread, and flesh
+    out workflow.
+
+
+# notes from off-site
+
+## big desks & little desks
 
 big desk: current local desk behavior
 
