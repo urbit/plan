@@ -1,13 +1,53 @@
 Known Arvo Security Issues
 
-- any app you install can reload your kernel and take over your ship (preventable by building a permissioning system in gall, on the order of a couple of months of work to write and deploy imo)
-- there's a type-safety issue where Gall agents can emit "evil vases" to the kernel; this is also called the "!< ('zapgal') type hole" problem, and it's not entirely clear how bad the security implications are, but it definitely increases the kernel's attack surface significantly -- solvable either by changing the hoon type system to prevent evil vase construction (hard but potentially interesting), or by preventing agents from emitting vases to the kernel, which can be done simply but not performantly using ;; ("micmic") to coerce untyped data to typed data using mark conversion, or less simply by changing Gall to use dynamically typed agents that are run "in vase mode", which could be much more performant but is a highly backward-incompatible change to how agents work and would likely make documenting and teaching Gall a bit harder (although we probably need to do this anyway to make scry-based subscription data convenient to access from agents)
-- the +code, used for logging in to your ship over the web, is sent in plaintext over HTTP, unless you've gone out of your way to set up TLS on your ship
-- a ship's data is not encrypted at rest, leaving it vulnerable in case someone steals your hard drive and your hard drive is unencrypted (I don't think this is crucial, but it would be good to build -- note that it doesn't protect you against an evil host, though)
-- EXIF metadata should be stripped from images that the user uploads to landscape to prevent location doxxing
+- any app you install can reload your kernel and take over your ship
+  (preventable by building a permissioning system in gall, on the order of a
+  couple of months of work to write and deploy imo)
+- there's a type-safety issue where Gall agents can emit "evil vases" to the
+  kernel; this is also called the "!< ('zapgal') type hole" problem, and it's
+  not entirely clear how bad the security implications are, but it definitely
+  increases the kernel's attack surface significantly -- solvable either by
+  changing the hoon type system to prevent evil vase construction (hard but
+  potentially interesting), or by preventing agents from emitting vases to the
+  kernel, which can be done simply but not performantly using ;; ("micmic") to
+  coerce untyped data to typed data using mark conversion, or less simply by
+  changing Gall to use dynamically typed agents that are run "in vase mode",
+  which could be much more performant but is a highly backward-incompatible
+  change to how agents work and would likely make documenting and teaching Gall
+  a bit harder (although we probably need to do this anyway to make scry-based
+  subscription data convenient to access from agents)
+- the +code, used for logging in to your ship over the web, is sent in
+  plaintext over HTTP, unless you've gone out of your way to set up TLS on your
+  ship
+- a ship's data is not encrypted at rest, leaving it vulnerable in case someone
+  steals your hard drive and your hard drive is unencrypted (I don't think this
+  is crucial, but it would be good to build -- note that it doesn't protect you
+  against an evil host, though)
+- EXIF metadata should be stripped from images that the user uploads to
+  landscape to prevent location doxxing
 - unfurled twitter links include group name in the URL
-- within the app permissioning system question, there is currently not a clear permissioning model for agent names: an attacker could publish a desk with a malicious version of the %hood app (which manages the terminal and kernel updates, among other things) and take over your ship, since the system would just clobber the existing %hood app with the new one -- solvable by namespacing agent names to live within a desk (which works broadly), or by giving the %base desk precedence over other desks (which works for %hood but not for other apps)
-- there's a long tail of "resource exhaustion attacks", ranging from DoS to trying to fill up your hard drive with silly data, to trying to get you to burn CPU; generally, any "authenticated" attack of this kind, i.e. one performed by another legitimate ship, is Arvo's responsibility to mitigate, not Vere's; we have no protections against these now
-- there are no checks on source code updates from the sponsor, so if the sponsor gets pwned, you get pwned; this is preventable by requiring signatures from a quorum of galaxies, posted on chain by an upstream key (not the networking key, but a colder key, so pwning live ships can't break it), on the hash of the kernel update; ships would check the chain to make sure the hash of the code they received from the sponsor matches the signed hash on chain
-- the Ames protocol has no forward secrecy (except for manual and costly-on-L1 key rotation on-chain), so if someone's key gets pwned, everyone's DMs with them also get pwned if someone was sniffing packets and storing them
-- image embeds are vulnerable to IP fishing; post an link to an image on a server you control -> check IP logs and you've got their IP
+- within the app permissioning system question, there is currently not a clear
+  permissioning model for agent names: an attacker could publish a desk with a
+  malicious version of the %hood app (which manages the terminal and kernel
+  updates, among other things) and take over your ship, since the system would
+  just clobber the existing %hood app with the new one -- solvable by
+  namespacing agent names to live within a desk (which works broadly), or by
+  giving the %base desk precedence over other desks (which works for %hood but
+  not for other apps)
+- there's a long tail of "resource exhaustion attacks", ranging from DoS to
+  trying to fill up your hard drive with silly data, to trying to get you to
+  burn CPU; generally, any "authenticated" attack of this kind, i.e. one
+  performed by another legitimate ship, is Arvo's responsibility to mitigate,
+  not Vere's; we have no protections against these now
+- there are no checks on source code updates from the sponsor, so if the
+  sponsor gets pwned, you get pwned; this is preventable by requiring
+  signatures from a quorum of galaxies, posted on chain by an upstream key (not
+  the networking key, but a colder key, so pwning live ships can't break it),
+  on the hash of the kernel update; ships would check the chain to make sure
+  the hash of the code they received from the sponsor matches the signed hash
+  on chain
+- the Ames protocol has no forward secrecy (except for manual and costly-on-L1
+  key rotation on-chain), so if someone's key gets pwned, everyone's DMs with
+  them also get pwned if someone was sniffing packets and storing them
+- image embeds are vulnerable to IP fishing; post an link to an image on a
+  server you control -> check IP logs and you've got their IP
