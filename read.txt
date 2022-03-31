@@ -1,5 +1,5 @@
 /next    # works to complete immediately
-/will    # works that should be completed
+/soon    # works that should be completed
 /oort    # ventures into the unknown
 /past    # charted territory
 
