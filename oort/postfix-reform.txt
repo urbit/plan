@@ -1,0 +1,68 @@
+For subscription reform, consider a standard postfix library included
+automatically by gall.
+
+First, we add this ford rune:
+
+/&  mark-1, mark-2, mark-3
+
+This is shorthand to generate something like this:
+
+|%
+++  subscriptions
+  |%
+  ++  s1  type-of-mark-1
+  ++  s2  type-of-mark-2
+  ++  s3  type-of-mark-3
+  --
+--
+
+Then you have an app that looks like:
+
+|_  [bowl (map path type-of-mark-1) (map path type-of-mark-2) (map path type-of-mark-2)]
+++  on-poke  ...
+--
+
+
+Which gets read by a postfix library that looks something like
+
+^-  agent:gall
+%+  verb  &
+%-  agent:bug
+|_  [bowl subs=vase]
++*  this  .
+    core
+  !@  s4.subscriptions
+    ...
+  !@  s3.subscriptions
+    %~  .  app
+    :-  bowl
+    !<  $:  (map path s1.subscriptions)
+            (map path s2.subscriptions)
+            (map path s3.subscriptions)
+        ==
+    subs
+  ...
+::
+++  on-init
+  !@  on-init.app
+    =^  cards  ..this.app  on-init:core
+    [cards this]
+  on-init:def
+::
+...
+--
+
+Just like in the philip/wrap branch, this pattern can also remove vases
+from pokes and %facts, if those still exist.  It also makes all arms optional.
+
+The abstract benefit is that postfix libraries are considerably less
+powerful than vase manipulation of code.  Vase manipulation can do
+anything, but all magic has a price.
+
+This approach has some nice properties, chief of which is that the type
+produced by the postfix library is statically known and manipulable.
+This means composability, experimentation, and ease of writing adapters
+to new versions of the gall interface.
+
+It's also quite easy to implement and doesn't require any fiddly
+inference in gall.  Just pass in the subscriptions as a vase.
